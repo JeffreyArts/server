@@ -5,7 +5,6 @@ module.exports = {
     name: '', // Fill in a name here to recoginize your project in the list of PM2 instances
     script: 'yarn',
     args: 'start',
-    cwd: process.env.DEPLOYMENT_PATH,
     env: {
       NODE_ENV: 'production'
     }
