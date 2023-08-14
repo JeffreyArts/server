@@ -27,12 +27,15 @@ server {
 
     server_name $domain;
 
-    root $dir;
+    root ${dir}/current;
     index index.html;
 
     location / {
         try_files \$uri \$uri/ =404;
     }
+
+    # Required for SPA's
+    error_page 404 /index.html;
 }
 EOF
 # Create symbolic link to file in sites-enabled directory
