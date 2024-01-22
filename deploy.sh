@@ -1,9 +1,25 @@
 #! /bin/sh
 
-export NODE_ENV=production
+if [ -z "$1" ]; then
+  ENVIRONMENT_VAR=$NODE_ENV
+  echo -e "\033[33mNo environment selected explicitly, using NODE_ENV:$NODE_ENV\033[0m"
+else
+  ENVIRONMENT_VAR=$1
+fi
+
+if [ "$ENVIRONMENT_VAR" = "production" ]; then
+  export NODE_ENV=production
+  ENV_FILE=".env.production"
+elif [ "$ENVIRONMENT_VAR" = "staging" ]; then
+  export NODE_ENV=staging
+  ENV_FILE=".env.staging"
+else
+  echo "Unknown environment: $ENVIRONMENT_VAR"
+  exit 1
+fi
 # Load the environment variables from .env.production
 set -o allexport
-source .env.production
+source "$ENV_FILE"
 set +o allexport
 
 # Build the application
