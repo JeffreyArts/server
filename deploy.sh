@@ -38,19 +38,22 @@ ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST "test -d $DEPLOYMENT_PATH || mkdir -p $DEP
 # Check if the current directory exists and backup if it does
 if ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST test -d "$DEPLOYMENT_PATH/current"; then
     timestamp=$(date +%Y%m%d-%H%M%S)
-    ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST "mv $DEPLOYMENT_PATH/current $DEPLOYMENT_PATH/bk_$timestamp"
+    ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST "cp -r $DEPLOYMENT_PATH/current $DEPLOYMENT_PATH/bk_$timestamp; \
+    chown -R $DEPLOYMENT_USER:web $DEPLOYMENT_PATH/bk_$timestamp; \
+    "
 fi
 
 # Unzip the zip file and copy the contents to the appropriate location on the remote server
 ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST "\
     unzip $DEPLOYMENT_PATH/deploy.zip -d $DEPLOYMENT_PATH/tmp; 
+    rm $DEPLOYMENT_PATH/current -rf; \
     mv $DEPLOYMENT_PATH/tmp/dist $DEPLOYMENT_PATH/current; \
     chown -R $DEPLOYMENT_USER:web $DEPLOYMENT_PATH/current; \
     rm $DEPLOYMENT_PATH/tmp -rf; \
     rm $DEPLOYMENT_PATH/deploy.zip; \
-    $DEPLOYMENT_PATH/deploy.zip; \
     exit"
-# Clean up old backups if there are more than 5
+    
+# Clean up old backups if there are more than $MAX_BACKUPS (define MAX_BACKUPS in .env file)
 if ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST test -d "$DEPLOYMENT_PATH"; then
     num_backups=$(ssh $DEPLOYMENT_USER@$DEPLOYMENT_HOST "ls -d $DEPLOYMENT_PATH/bk_* | wc -l")
     if [ $num_backups -gt $MAX_BACKUPS ]; then
