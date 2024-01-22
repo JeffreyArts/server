@@ -25,9 +25,6 @@ set +o allexport
 # Build the application
 yarn run build
 
-# Remove the playground-assets directory
-rm -r dist/playground-assets
-
 # Zip the dist directory
 zip -r deploy.zip dist
 
